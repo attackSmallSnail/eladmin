@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ylz.mapper.DynamicStatementMapper">
+    <!-- 获取采集指标列表 -->
+    <select id="getSingleStringValue" parameterType="java.lang.String" resultType="java.lang.String">
+        <![CDATA[${sql}]]>
+    </select>
+
+    <!-- 返回单列记录 -->
+    <select id="getSingleObject" parameterType="java.lang.String" resultType="java.util.Map">
+        <![CDATA[
+         select * from (
+          ${sql}
+         ) where rownum<=1
+         ]]>
+    </select>
+
+    <!-- 返回单列记录 -->
+    <select id="commonQueryList" parameterType="java.lang.String" resultType="java.util.Map">
+        <![CDATA[${sql}]]>
+    </select>
+
+    <!-- 返回单行记录 -->
+    <select id="getSingleMap" parameterType="java.lang.String" resultType="java.util.Map">
+        <![CDATA[${sql}]]>
+    </select>
+
+    <!-- 查询要插入和更新的表中是否有满足条件数据 -->
+    <select id="queryInterfaceIfExists" parameterType="com.ylz.req.CommonSqlReq" resultType="java.lang.Integer">
+        <![CDATA[
+          select count(1)
+           from ${interfaceAddress}
+          where 1= 1
+          ${queryStr}
+        ]]>
+    </select>
+
+    <!-- 查询要插入和更新的表中是否有满足条件数据 -->
+    <insert id="insertInterface" parameterType="com.ylz.req.CommonSqlReq">
+        <![CDATA[
+          insert into ${interfaceAddress}
+           (
+            ${insertFields}
+           )
+           values
+           (
+            ${insertDatas}
+           )
+        ]]>
+    </insert>
+
+    <!-- 查询要插入和更新的表中是否有满足条件数据 -->
+    <update id="updateInterface" parameterType="com.ylz.req.CommonSqlReq">
+        <![CDATA[
+          update ${interfaceAddress}
+           set ${updateDatas}
+           where 1=1
+           ${queryStr}
+        ]]>
+    </update>
+</mapper>

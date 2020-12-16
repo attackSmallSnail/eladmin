@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ylz.mapper.WarningIndicatorsMapper">
+    <sql id="warning_columns">
+        t.warning_id  warningId,t.warning_name warningName,t.indicators_key indicatorsKey, t.indicators_name indicatorsName, t.create_user_id createUserId,
+        t.area_id areaId, t.date_type dateType, t.create_user_name createUserName, t.used_status usedStatus, t.interval_min intervalMin,t.interval_max intervalMax,
+        t.is_single_org isSingleOrg
+    </sql>
+
+    <select id="getWarningByIndicatorsName" parameterType="com.ylz.entity.WarningIndicatorsDto" resultType="com.ylz.entity.WarningIndicatorsDto">
+        select <include refid="warning_columns"/>
+          from warning_indicators t
+          where t.indicators_key in (
+        <if test="indicatorsKeyList!=null and indicatorsKeyList.size !=0">
+            <foreach collection="indicatorsKeyList" item="indicatorsKeyItem" separator=",">
+                #{indicatorsKeyItem, jdbcType=VARCHAR}
+            </foreach>
+        </if>
+        )
+        and t.date_type = #{dateType, jdbcType=VARCHAR}
+        and t.used_status = '1'
+        and t.is_del = '0'
+
+        <!--匹配任意单机构-->
+        <if test="isSingleOrg!=null and isSingleOrg=='1'.toString() and orgIdList!=null and orgIdList.size==1">
+            and (
+            (t.is_single_org = '1'
+            <if test="areaId!=null and areaId!=''">
+                and t.area_id = #{areaId, jdbcType=VARCHAR}
+            </if>
+            and (t.WARNING_ID not in (select tg.WARNING_ID from WARNING_SYS_GRADE tg where tg.WARNING_ID = t.WARNING_ID)
+            or #{orgIdList[0]} in
+            (select ts.org_id from sys_org ts,WARNING_SYS_GRADE tg
+            where tg.WARNING_ID = t.WARNING_ID
+            and ts.org_grade=tg.ORG_GRADE))
+            )
+            or ( 1=1
+        </if>
+
+        <if test="areaId!=null and areaId!=''">
+            and t.area_id = #{areaId, jdbcType=VARCHAR}
+        </if>
+
+        <!--完全匹配机构等级-->
+        <choose>
+          <when test="orgIdStr!=null and orgIdStr!=''">
+              and #{orgIdStr, jdbcType=VARCHAR} in
+              (select wm_concat(tw.ORG_ID) from (select ORG_ID,warning_id from warning_sys_org tw order by tw.org_id) tw
+              where tw.warning_id = t.warning_id)
+          </when>
+          <otherwise>
+              and t.warning_id not in (select t2.warning_id from warning_sys_org t2 where t2.warning_id=t.warning_id )
+          </otherwise>
+        </choose>
+
+        <!--完全匹配机构id-->
+        <choose>
+            <when test="orgGradeStr!=null and orgGradeStr!=''">
+                and #{orgGradeStr, jdbcType=VARCHAR} in
+                (select wm_concat(tg.ORG_GRADE) from (select ORG_GRADE,warning_id from warning_sys_grade tg order by tg.ORG_GRADE) tg
+                where tg.warning_id=t.warning_id)
+            </when>
+            <otherwise>
+                and t.warning_id not in (select t3.warning_id from warning_sys_grade t3 where t3.warning_id=t.warning_id )
+            </otherwise>
+        </choose>
+
+        <!--匹配任意单机构-->
+        <if test="isSingleOrg!=null and isSingleOrg=='1'.toString() and orgIdList!=null and orgIdList.size==1">
+            ))
+        </if>
+        order by t.is_single_org desc
+    </select>
+
+    <select id="getWarningByIndicatorsName2" parameterType="com.ylz.entity.WarningIndicatorsDto" resultType="com.ylz.entity.WarningIndicatorsDto">
+        select <include refid="warning_columns"/>
+        from warning_indicators t
+        where t.indicators_key in (
+        <if test="indicatorsKeyList!=null and indicatorsKeyList.size !=0">
+            <foreach collection="indicatorsKeyList" item="indicatorsKeyItem" separator=",">
+                #{indicatorsKeyItem, jdbcType=VARCHAR}
+            </foreach>
+        </if>
+        )
+        and t.date_type = #{dateType, jdbcType=VARCHAR}
+        and t.used_status = '1'
+        and t.is_del = '0'
+        and (select count(*) from WARNING_SYS_ORG t1 where t1.WARNING_ID=t.warning_id)=1
+    </select>
+
+    <select id="getWarningIntervalByWarningId" parameterType="java.lang.String" resultType="com.ylz.entity.WarningIntervalDto">
+        select warning_grade warningGrade,warning_rule,warning_number
+        from warning_interval t
+        where t.warning_id = #{warningId, jdbcType=VARCHAR}
+    </select>
+
+    <select id="getWarningIntervalByWarningIds"  resultType="com.ylz.entity.WarningIntervalDto">
+        select warning_grade warningGrade,warning_id warningId,warning_rule warningRule,warning_number warningNumber
+        from warning_interval t
+        where 1=1
+        <choose>
+            <when test="list!=null and list.size !=0">
+                AND  t.warning_id in (
+                <foreach collection="list" item="idStr" separator=",">
+                    #{idStr}
+                </foreach>
+                )
+            </when>
+            <otherwise>
+                and t.warning_id  = '01'
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="getWarningIntervalByWarnings"  resultType="com.ylz.entity.WarningIntervalDto">
+        select warning_grade warningGrade,INDICATORS_KEY indicatorsKey,warning_rule warningRule,round(sum(warning_number)/COUNT(warning_number),2) warningNumber
+        from warning_interval t
+        where t.INDICATORS_KEY is not null
+        <choose>
+            <when test="list!=null and list.size !=0">
+                AND  t.warning_id in (
+                <foreach collection="list" item="warning" separator=",">
+                    #{warning.warningId}
+                </foreach>
+                )
+            </when>
+            <otherwise>
+                and t.warning_id  = '01'
+            </otherwise>
+        </choose>
+        group by t.INDICATORS_KEY,t.warning_rule,t.warning_grade
+    </select>
+
+    <insert id="saveWarningIndicators">
+        INSERT INTO warning_indicators (warning_id, warning_name, indicators_key,
+         indicators_module, indicators_name, date_type, area_id, create_user_id, create_user_name,
+         used_status, interval_min, interval_max, is_single_org, create_Time, is_Del)
+        VALUES (
+        #{warningId, jdbcType=VARCHAR},
+        #{warningName, jdbcType=VARCHAR},
+        #{indicatorsKey, jdbcType=VARCHAR},
+        #{indicatorsModule, jdbcType=VARCHAR},
+        #{indicatorsName, jdbcType=VARCHAR},
+        #{dateType, jdbcType=VARCHAR},
+        #{areaId, jdbcType=VARCHAR},
+        #{createUserId, jdbcType=VARCHAR},
+        #{createUserName, jdbcType=VARCHAR},
+        #{usedStatus, jdbcType=VARCHAR},
+        #{intervalMin, jdbcType=DOUBLE},
+        #{intervalMax, jdbcType=DOUBLE},
+        #{isSingleOrg, jdbcType=VARCHAR},
+        to_date(#{createTime,jdbcType=VARCHAR},'YYYY-MM-DD HH24:mi:ss'),
+        '0'
+        )
+    </insert>
+
+    <insert id="saveWarningInterval">
+        INSERT INTO Warning_interval (warning_id, warning_grade, warning_rule, warning_number)
+        VALUES (
+        #{warningId, jdbcType=VARCHAR},
+        #{warningGrade, jdbcType=VARCHAR},
+        #{warningRule, jdbcType=VARCHAR},
+        #{warningNumber, jdbcType=DOUBLE}
+        )
+    </insert>
+
+    <insert id="saveWarningSysOrg">
+        INSERT INTO warning_sys_org (warning_id, org_id)
+        VALUES (
+        #{warningId, jdbcType=VARCHAR},
+        #{orgId, jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <insert id="saveWarningSysOrgList" parameterType="com.ylz.entity.WarningSysOrgDto">
+        insert into warning_sys_org(
+        warning_id,
+        org_id
+        )
+        <foreach collection="list" item="item" index="index" separator="union all" open="(" close=")">
+            select
+            #{item.warningId,jdbcType=VARCHAR},
+            #{item.orgId,jdbcType=VARCHAR}
+            from dual
+        </foreach>
+    </insert>
+
+    <insert id="saveWarningSysGradeList" parameterType="com.ylz.entity.WarningSysGradeDto">
+        insert into warning_sys_grade(
+        warning_id,
+        org_grade
+        )
+        <foreach collection="list" item="item" index="index" separator="union all" open="(" close=")">
+            select
+            #{item.warningId,jdbcType=VARCHAR},
+            #{item.orgGrade,jdbcType=VARCHAR}
+            from dual
+        </foreach>
+    </insert>
+
+    <insert id="saveWarningIntervalList" parameterType="com.ylz.entity.WarningIntervalDto">
+        insert into Warning_interval(
+        warning_id,
+        Warning_Grade,
+        warning_rule,
+        warning_number,
+        indicators_key
+        )
+        <foreach collection="list" item="item" index="index" separator="union all" open="(" close=")">
+            select
+            #{item.warningId,jdbcType=VARCHAR},
+            #{item.warningGrade,jdbcType=VARCHAR},
+            #{item.warningRule,jdbcType=VARCHAR},
+            #{item.warningNumber,jdbcType=DOUBLE},
+            #{item.indicatorsKey,jdbcType=VARCHAR}
+            from dual
+        </foreach>
+    </insert>
+
+    <update id="updateWarningIndicators">
+        update warning_indicators
+        <set>
+            <if test="warningName!=null and warningName!=''">
+                warning_name = #{warningName, jdbcType=VARCHAR},
+            </if>
+            <if test="indicatorsKey!=null and indicatorsKey!=''">
+                indicators_key = #{indicatorsKey, jdbcType=VARCHAR},
+            </if>
+            <if test="indicatorsModule!=null and indicatorsModule!=''">
+                indicators_Module = #{indicatorsModule, jdbcType=VARCHAR},
+            </if>
+            <if test="indicatorsName!=null and indicatorsName!=''">
+                indicators_Name = #{indicatorsName, jdbcType=VARCHAR},
+            </if>
+            <if test="dateType!=null and dateType!=''">
+                date_Type = #{dateType, jdbcType=VARCHAR},
+            </if>
+            <if test="areaId!=null and areaId!=''">
+                area_Id = #{areaId, jdbcType=VARCHAR},
+            </if>
+            <if test="createUserId!=null and createUserId!=''">
+                create_User_Id = #{createUserId, jdbcType=VARCHAR},
+            </if>
+            <if test="createUserName!=null and createUserName!=''">
+                create_User_Name = #{createUserName, jdbcType=VARCHAR},
+            </if>
+            <if test="usedStatus!=null and usedStatus!=''">
+                used_Status = #{usedStatus, jdbcType=VARCHAR},
+            </if>
+            <if test="intervalMin!=null and intervalMin!=''">
+                interval_Min = #{intervalMin, jdbcType=DOUBLE},
+            </if>
+            <if test="intervalMax!=null and intervalMax!=''">
+                interval_Max = #{intervalMax, jdbcType=DOUBLE},
+            </if>
+            <if test="isSingleOrg!=null and isSingleOrg!=''">
+                is_Single_Org = #{isSingleOrg, jdbcType=VARCHAR},
+            </if>
+        </set>
+        where warning_id = #{warningId, jdbcType=VARCHAR}
+    </update>
+
+    <update id="updateUsedStatusById" parameterType="com.ylz.req.WarningIndicatorsReq">
+        UPDATE warning_indicators
+        SET used_Status = #{usedStatus, jdbcType=VARCHAR}
+        WHERE warning_id = #{warningId, jdbcType=VARCHAR}
+    </update>
+
+    <delete id="removeWarningIndicators">
+        DELETE warning_indicators WHERE warning_id = #{warningId, jdbcType=VARCHAR}
+    </delete>
+    <delete id="removeWarningSysOrg">
+        DELETE warning_sys_org WHERE warning_id = #{warningId, jdbcType=VARCHAR}
+    </delete>
+    <delete id="removeWarningSysGrade">
+        DELETE warning_sys_grade WHERE warning_id = #{warningId, jdbcType=VARCHAR}
+    </delete>
+    <delete id="removeWarningInterval">
+        DELETE warning_interval WHERE warning_id = #{warningId, jdbcType=VARCHAR}
+    </delete>
+
+    <select id="getWarningIndicatorsById" resultType="com.ylz.entity.WarningIndicatorsDto">
+        SELECT <include refid="warning_columns"/>,t1.area_name areaName FROM warning_indicators t
+        LEFT JOIN sys_area_fjzl t1 on t.AREA_ID=t1.AREA_ID
+        where t.warning_id = #{warningId, jdbcType=VARCHAR}
+    </select>
+
+    <select id="listWarningSysOrgById" resultType="com.ylz.entity.SysOrg">
+        select ts.org_id orgId, ts.org_name orgName
+        from WARNING_SYS_ORG t left join sys_org ts on t.ORG_ID = ts.ORG_ID
+        where t.warning_id = #{warningId, jdbcType=VARCHAR}
+    </select>
+
+    <select id="listWarningSysGradeById" resultType="java.lang.String">
+        select t.org_grade from WARNING_SYS_GRADE t
+        where t.warning_id = #{warningId, jdbcType=VARCHAR}
+    </select>
+
+    <select id="listAllWarningIndicators" resultType="com.ylz.entity.WarningIndicatorsDto">
+        SELECT <include refid="warning_columns"/> FROM warning_indicators t
+        where is_del = '0'
+        <if test="warningName!=null and warningName!=''">
+            and t.warning_name LIKE '%' || #{warningName,jdbcType=VARCHAR} || '%'
+        </if>
+        order by t.create_Time desc
+    </select>
+
+    <select id="listWarningIntervalById" resultType="com.ylz.entity.WarningIntervalDto">
+        SELECT t.warning_id  warningId,t.Warning_Grade warningGrade,
+        t.warning_rule warningRule,t.warning_number warningNumber,
+		t.indicators_key indicatorsKey
+        FROM warning_interval t
+        WHERE warning_id = #{warningId, jdbcType=VARCHAR}
+    </select>
+
+    <select id="getWarningNameByName" resultType="java.lang.String">
+        SELECT t.warning_name warningName FROM warning_indicators t
+        WHERE t.warning_name=#{warningName,jdbcType=VARCHAR}
+    </select>
+
+    <select id="listAllIndicators" resultType="com.ylz.entity.IndicatorDto">
+        SELECT t.indicators_key indicatorsKey,t.indicators_name indicatorsName FROM w_indicator t
+    </select>
+
+    <insert id="saveIndicators" parameterType="com.ylz.entity.IndicatorDto">
+        INSERT INTO w_indicator (indicators_key, indicators_name)
+        VALUES (
+        #{indicatorsKey, jdbcType=VARCHAR},
+        #{indicatorsName, jdbcType=VARCHAR}
+        )
+    </insert>
+
+</mapper>
