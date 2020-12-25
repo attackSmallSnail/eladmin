@@ -1112,7 +1112,7 @@ comment on column SYS_JOB.UPDATE_TIME is
 /*==============================================================*/
 create table SYS_LOG
 (
-   LOG_ID               NUMBER(6)            not null,
+   LOG_ID               VARCHAR2(32)         not null,
    DESCRIPTION          VARCHAR2(255)        default NULL,
    LOG_TYPE             VARCHAR2(255)        default NULL,
    METHOD               VARCHAR2(255)        default NULL,
@@ -1905,7 +1905,7 @@ INSERT INTO sys_menu VALUES (30, 36, 0, 1, '代码生成', 'GeneratorIndex', 'ge
 INSERT INTO sys_menu VALUES (32, 6, 0, 1, '异常日志', 'ErrorLog', 'monitor/log/errorLog', 12, 'error', 'errorLog', '0', '0', '0', NULL, NULL, NULL, to_date('2020-08-02 14:49:07' , 'yyyy-mm-dd hh24:mi:ss'), NULL);
 INSERT INTO sys_menu VALUES (33, 10, 0, 1, 'Markdown', 'Markdown', 'components/MarkDown', 53, 'markdown', 'markdown', '0', '0', '0', NULL, NULL, NULL, to_date('2020-08-02 14:49:07' , 'yyyy-mm-dd hh24:mi:ss'), NULL);
 INSERT INTO sys_menu VALUES (34, 10, 0, 1, 'Yaml编辑器', 'YamlEdit', 'components/YamlEdit', 54, 'dev', 'yaml', '0', '0', '0', NULL, NULL, NULL, to_date('2020-08-02 14:49:07' , 'yyyy-mm-dd hh24:mi:ss'), NULL);
-INSERT INTO sys_menu VALUES (35, 1, 3, 1, '部门管理', 'Dept', 'system/dept/index', 6, 'dept', 'dept', '0', '0', '0', 'dept:list', NULL, NULL, to_date('2020-08-02 14:49:07' , 'yyyy-mm-dd hh24:mi:ss'), NULL);
+INSERT INTO sys_menu VALUES (35, 1, 3, 1, '部门管理', 'Dept', 'system/deptSys/index', 6, 'deptSys', 'deptSys', '0', '0', '0', 'deptSys:list', NULL, NULL, to_date('2020-08-02 14:49:07' , 'yyyy-mm-dd hh24:mi:ss'), NULL);
 INSERT INTO sys_menu VALUES (36, NULL, 7, 0, '系统工具', NULL, '', 30, 'sys-tools', 'sys-tools', '0', '0', '0', NULL, NULL, NULL, to_date('2020-08-02 14:49:07' , 'yyyy-mm-dd hh24:mi:ss'), NULL);
 INSERT INTO sys_menu VALUES (37, 1, 3, 1, '岗位管理', 'Jo', 'system/job/index', 7, 'Steve-Jobs', 'jo', '0', '0', '0', 'job:list', NULL, NULL, to_date('2020-08-02 14:49:07' , 'yyyy-mm-dd hh24:mi:ss'), NULL);
 INSERT INTO sys_menu VALUES (38, 36, 0, 1, '接口文档', 'Swagger', 'tools/swagger/index', 36, 'swagger', 'swagger2', '0', '0', '0', NULL, NULL, NULL, to_date('2020-08-02 14:49:07' , 'yyyy-mm-dd hh24:mi:ss'), NULL);
@@ -1920,9 +1920,9 @@ INSERT INTO sys_menu VALUES (50, 3, 0, 2, '角色删除', NULL, '', 4, '', '', '
 INSERT INTO sys_menu VALUES (52, 5, 0, 2, '菜单新增', NULL, '', 2, '', '', '0', '0', '0', 'menu:add', NULL, NULL, to_date('2020-08-02 14:49:07' , 'yyyy-mm-dd hh24:mi:ss'), NULL);
 INSERT INTO sys_menu VALUES (53, 5, 0, 2, '菜单编辑', NULL, '', 3, '', '', '0', '0', '0', 'menu:edit', NULL, NULL, to_date('2020-08-02 14:49:07' , 'yyyy-mm-dd hh24:mi:ss'), NULL);
 INSERT INTO sys_menu VALUES (54, 5, 0, 2, '菜单删除', NULL, '', 4, '', '', '0', '0', '0', 'menu:del', NULL, NULL, to_date('2020-08-02 14:49:07' , 'yyyy-mm-dd hh24:mi:ss'), NULL);
-INSERT INTO sys_menu VALUES (56, 35, 0, 2, '部门新增', NULL, '', 2, '', '', '0', '0', '0', 'dept:add', NULL, NULL, to_date('2020-08-02 14:49:07' , 'yyyy-mm-dd hh24:mi:ss'), NULL);
-INSERT INTO sys_menu VALUES (57, 35, 0, 2, '部门编辑', NULL, '', 3, '', '', '0', '0', '0', 'dept:edit', NULL, NULL, to_date('2020-08-02 14:49:07' , 'yyyy-mm-dd hh24:mi:ss'), NULL);
-INSERT INTO sys_menu VALUES (58, 35, 0, 2, '部门删除', NULL, '', 4, '', '', '0', '0', '0', 'dept:del', NULL, NULL, to_date('2020-08-02 14:49:07' , 'yyyy-mm-dd hh24:mi:ss'), NULL);
+INSERT INTO sys_menu VALUES (56, 35, 0, 2, '部门新增', NULL, '', 2, '', '', '0', '0', '0', 'deptSys:add', NULL, NULL, to_date('2020-08-02 14:49:07' , 'yyyy-mm-dd hh24:mi:ss'), NULL);
+INSERT INTO sys_menu VALUES (57, 35, 0, 2, '部门编辑', NULL, '', 3, '', '', '0', '0', '0', 'deptSys:edit', NULL, NULL, to_date('2020-08-02 14:49:07' , 'yyyy-mm-dd hh24:mi:ss'), NULL);
+INSERT INTO sys_menu VALUES (58, 35, 0, 2, '部门删除', NULL, '', 4, '', '', '0', '0', '0', 'deptSys:del', NULL, NULL, to_date('2020-08-02 14:49:07' , 'yyyy-mm-dd hh24:mi:ss'), NULL);
 INSERT INTO sys_menu VALUES (60, 37, 0, 2, '岗位新增', NULL, '', 2, '', '', '0', '0', '0', 'job:add', NULL, NULL, to_date('2020-08-02 14:49:07' , 'yyyy-mm-dd hh24:mi:ss'), NULL);
 INSERT INTO sys_menu VALUES (61, 37, 0, 2, '岗位编辑', NULL, '', 3, '', '', '0', '0', '0', 'job:edit', NULL, NULL, to_date('2020-08-02 14:49:07' , 'yyyy-mm-dd hh24:mi:ss'), NULL);
 INSERT INTO sys_menu VALUES (62, 37, 0, 2, '岗位删除', NULL, '', 4, '', '', '0', '0', '0', 'job:del', NULL, NULL, to_date('2020-08-02 14:49:07' , 'yyyy-mm-dd hh24:mi:ss'), NULL);

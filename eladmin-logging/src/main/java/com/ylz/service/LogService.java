@@ -70,7 +70,7 @@ public interface LogService {
      * @param id 日志ID
      * @return Object
      */
-    Object findByErrDetail(Long id);
+    Object findByErrDetail(String id);
 
     /**
      * 导出日志

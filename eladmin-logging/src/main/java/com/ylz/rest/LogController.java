@@ -86,7 +86,7 @@ public class LogController {
     @GetMapping(value = "/error/{id}")
     @ApiOperation("日志异常详情查询")
     @PreAuthorize("@el.check()")
-    public ResponseEntity<Object> queryErrorLogs(@PathVariable Long id){
+    public ResponseEntity<Object> queryErrorLogs(@PathVariable String id){
         return new ResponseEntity<>(logService.findByErrDetail(id), HttpStatus.OK);
     }
     @DeleteMapping(value = "/del/error")

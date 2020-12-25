@@ -93,8 +93,10 @@ public interface UserRepository extends JpaRepository<User, String>, JpaSpecific
      * @param id 菜单ID
      * @return /
      */
+//    @Query(value = "SELECT u.* FROM sys_user u, sys_users_roles ur, sys_roles_menus rm WHERE\n" +
+//            "u.user_id = ur.user_id AND ur.role_id = rm.role_id AND rm.menu_id = ?1 group by u.user_id", nativeQuery = true)
     @Query(value = "SELECT u.* FROM sys_user u, sys_users_roles ur, sys_roles_menus rm WHERE\n" +
-            "u.user_id = ur.user_id AND ur.role_id = rm.role_id AND rm.menu_id = ?1 group by u.user_id", nativeQuery = true)
+            "u.user_id = ur.user_id AND ur.role_id = rm.role_id AND rm.menu_id = ?1  ", nativeQuery = true)
     List<User> findByMenuId(String id);
 
     /**

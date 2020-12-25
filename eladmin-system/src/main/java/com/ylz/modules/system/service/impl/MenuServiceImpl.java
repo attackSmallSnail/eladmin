@@ -15,6 +15,7 @@
  */
 package com.ylz.modules.system.service.impl;
 
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import lombok.RequiredArgsConstructor;
@@ -114,7 +115,7 @@ public class MenuServiceImpl implements MenuService {
                 throw new EntityExistException(Menu.class,"componentName",resources.getComponentName());
             }
         }
-        if(resources.getPid().equals(0L)){
+        if(resources.getPid().equals("0")){
             resources.setPid(null);
         }
         if(resources.getIFrame()){
@@ -123,6 +124,7 @@ public class MenuServiceImpl implements MenuService {
                 throw new BadRequestException("外链必须以http://或者https://开头");
             }
         }
+        resources.setId(IdUtil.fastUUID());
         menuRepository.save(resources);
         // 计算子节点数目
         resources.setSubCount(0);
@@ -151,7 +153,7 @@ public class MenuServiceImpl implements MenuService {
             throw new EntityExistException(Menu.class,"title",resources.getTitle());
         }
 
-        if(resources.getPid().equals(0L)){
+        if(resources.getPid().equals("0")){
             resources.setPid(null);
         }
 
@@ -212,7 +214,7 @@ public class MenuServiceImpl implements MenuService {
     @Override
     public List<MenuDto> getMenus(String pid) {
         List<Menu> menus;
-        if(pid != null && !pid.equals(0L)){
+        if(pid != null && !pid.equals("0")){
             menus = menuRepository.findByPid(pid);
         } else {
             menus = menuRepository.findByPidIsNull();

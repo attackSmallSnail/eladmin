@@ -36,8 +36,8 @@ public class Log  implements Serializable {
 
     @Id
     @Column(name = "log_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private String id;
 
     /** 操作用户 */
     private String username;

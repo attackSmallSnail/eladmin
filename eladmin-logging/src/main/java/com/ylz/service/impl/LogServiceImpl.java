@@ -16,6 +16,7 @@
 package com.ylz.service.impl;
 
 import cn.hutool.core.lang.Dict;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
 import lombok.RequiredArgsConstructor;
@@ -99,6 +100,7 @@ public class LogServiceImpl implements LogService {
         log.setUsername(username);
         log.setParams(getParameter(method, joinPoint.getArgs()));
         log.setBrowser(browser);
+        log.setId(IdUtil.fastSimpleUUID());
         logRepository.save(log);
     }
 
@@ -133,7 +135,7 @@ public class LogServiceImpl implements LogService {
     }
 
     @Override
-    public Object findByErrDetail(Long id) {
+    public Object findByErrDetail(String id) {
         Log log = logRepository.findById(id).orElseGet(Log::new);
         ValidationUtil.isNull(log.getId(), "Log", "id", id);
         byte[] details = log.getExceptionDetail();
