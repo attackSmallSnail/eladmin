@@ -5,9 +5,11 @@ spring:
   application:
     name: general-oracle-server
   freemarker:
+    settings:
+      classic_compatible: true
     check-template-location: false
   profiles:
-    active: dev
+    active: oracle-dev
   jackson:
     time-zone: GMT+8
   data:
@@ -19,8 +21,14 @@ spring:
   jpa:
     properties:
       hibernate:
+        jdbc:
+          batch_size: 60
+          batch_versioned_data: true
+        order_inserts: true
+        order_updates: true
         ddl-auto: none
-        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+#        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+        dialect: org.hibernate.dialect.Oracle10gDialect
     open-in-view: true
 
 #  redis:

@@ -16,6 +16,7 @@
 package com.ylz.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ZipUtil;
 import lombok.RequiredArgsConstructor;
@@ -63,9 +64,11 @@ public class GeneratorServiceImpl implements GeneratorService {
     @Override
     public Object getTables() {
         // 使用预编译防止sql注入
-        String sql = "select table_name ,create_time , engine, table_collation, table_comment from information_schema.tables " +
-                "where table_schema = (select database()) " +
-                "order by create_time desc";
+//        String sql = "select table_name ,create_time , engine, table_collation, table_comment from information_schema.tables " +
+//                "where table_schema = (select database()) " +
+//                "order by create_time desc";
+        String sql = "select a.table_name ,a.LAST_ANALYZED,  b.comments as table_comment from " +
+                " user_tables a, user_tab_comments b  where a.TABLE_NAME = b.TABLE_NAME ";
         Query query = em.createNativeQuery(sql);
         return query.getResultList();
     }
@@ -73,9 +76,12 @@ public class GeneratorServiceImpl implements GeneratorService {
     @Override
     public Object getTables(String name, int[] startEnd) {
         // 使用预编译防止sql注入
-        String sql = "select table_name ,create_time , engine, table_collation, table_comment from information_schema.tables " +
-                "where table_schema = (select database()) " +
-                "and table_name like ? order by create_time desc";
+//        String sql = "select table_name ,create_time , engine, table_collation, table_comment from information_schema.tables " +
+//                "where table_schema = (select database()) " +
+//                "and table_name like ? order by create_time desc";
+        String sql = "select a.table_name ,a.LAST_ANALYZED as create_time, '' as engine, '' as table_collation, b.comments as table_comment from  user_tables a " +
+                ", user_tab_comments b  where a.TABLE_NAME = b.TABLE_NAME " +
+                "and a.table_name like ?  order by a.table_name";
         Query query = em.createNativeQuery(sql);
         query.setFirstResult(startEnd[0]);
         query.setMaxResults(startEnd[1] - startEnd[0]);
@@ -86,7 +92,8 @@ public class GeneratorServiceImpl implements GeneratorService {
             Object[] arr = (Object[]) obj;
             tableInfos.add(new TableInfo(arr[0], arr[1], arr[2], arr[3], ObjectUtil.isNotEmpty(arr[4]) ? arr[4] : "-"));
         }
-        Query query1 = em.createNativeQuery("SELECT COUNT(*) from information_schema.tables where table_schema = (select database())");
+//        Query query1 = em.createNativeQuery("SELECT COUNT(*) from information_schema.tables where table_schema = (select database())");
+        Query query1 = em.createNativeQuery("SELECT COUNT(*) from user_tables ");
         Object totalElements = query1.getSingleResult();
         return PageUtil.toPage(tableInfos, totalElements);
     }
@@ -105,22 +112,36 @@ public class GeneratorServiceImpl implements GeneratorService {
     @Override
     public List<ColumnInfo> query(String tableName) {
         // 使用预编译防止sql注入
-        String sql = "select column_name, is_nullable, data_type, column_comment, column_key, extra from information_schema.columns " +
-                "where table_name = ? and table_schema = (select database()) order by ordinal_position";
+//        String sql = "select column_name, is_nullable, data_type, column_comment, column_key, extra from information_schema.columns " +
+//                "where table_name = ? and table_schema = (select database()) order by ordinal_position";
+        String sql = "select a.column_name,a.NULLABLE as is_nullable,a.data_type,b.COMMENTS,(select con.constraint_type " +
+                "from user_constraints con,  user_cons_columns col " +
+                "where con.constraint_name = col.constraint_name " +
+                "and (con.constraint_type='P' or con.constraint_type='U') " +
+                "and col.table_name = b.TABLE_NAME and col.COLUMN_NAME = a.COLUMN_NAME) as column_key , '' as extra " +
+                "from user_tab_columns a,user_col_comments b " +
+                "where a.COLUMN_NAME=b.COLUMN_NAME and a.Table_Name=? and b.TABLE_NAME = a.Table_Name " +
+                "order by a.column_name";
         Query query = em.createNativeQuery(sql);
         query.setParameter(1, tableName);
         List result = query.getResultList();
         List<ColumnInfo> columnInfos = new ArrayList<>();
         for (Object obj : result) {
             Object[] arr = (Object[]) obj;
+            String keyType = " ";
+            if (arr[4] != null && arr[4].equals("P")){
+                keyType = "PRI";
+            }else if (arr[4] != null && arr[4].equals("U")){
+                keyType = "UNI";
+            }
             columnInfos.add(
                     new ColumnInfo(
                             tableName,
                             arr[0].toString(),
                             "NO".equals(arr[1]),
                             arr[2].toString(),
-                            ObjectUtil.isNotNull(arr[3]) ? arr[3].toString() : null,
-                            ObjectUtil.isNotNull(arr[4]) ? arr[4].toString() : null,
+                            ObjectUtil.isNotNull(arr[3]) ? arr[3].toString() : "",
+                            keyType,
                             ObjectUtil.isNotNull(arr[5]) ? arr[5].toString() : null)
             );
         }
@@ -145,6 +166,7 @@ public class GeneratorServiceImpl implements GeneratorService {
                 columnInfoRepository.save(column);
             } else {
                 // 如果找不到，则保存新字段信息
+                columnInfo.setId(IdUtil.fastSimpleUUID());
                 columnInfoRepository.save(columnInfo);
             }
         }

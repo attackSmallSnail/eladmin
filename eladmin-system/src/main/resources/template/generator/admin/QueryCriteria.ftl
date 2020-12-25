@@ -75,7 +75,7 @@ public class ${className}QueryCriteria{
     <#list betweens as column>
     /** BETWEEN */
     @Query(type = Query.Type.BETWEEN)
-    private List<${column.columnType}> ${column.changeColumnName};
+    private List<${column.columnType}> createTime;
     </#list>
 </#if>
 }

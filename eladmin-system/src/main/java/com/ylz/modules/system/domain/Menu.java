@@ -41,8 +41,8 @@ public class Menu extends BaseEntity implements Serializable {
     @Column(name = "menu_id")
     @NotNull(groups = {Update.class})
     @ApiModelProperty(value = "ID", hidden = true)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private String id;
 
     @JsonIgnore
     @ManyToMany(mappedBy = "menus")
@@ -83,7 +83,7 @@ public class Menu extends BaseEntity implements Serializable {
     private Boolean hidden;
 
     @ApiModelProperty(value = "上级菜单")
-    private Long pid;
+    private String pid;
 
     @ApiModelProperty(value = "子节点数目", hidden = true)
     private Integer subCount = 0;

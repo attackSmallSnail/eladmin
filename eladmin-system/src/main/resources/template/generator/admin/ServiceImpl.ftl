@@ -45,7 +45,7 @@ import cn.hutool.core.util.IdUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import PageUtil;
-import com.ylz.utils.QueryHelp;
+import QueryHelp;
 import java.util.List;
 import java.util.Map;
 import java.io.IOException;
@@ -90,10 +90,10 @@ public class ${className}ServiceImpl implements ${className}Service {
     public ${className}Dto create(${className} resources) {
 <#if !auto && pkColumnType = 'Long'>
         Snowflake snowflake = IdUtil.createSnowflake(1, 1);
-        resources.set${pkCapitalColName}(snowflake.nextId());
+        resources.set${pkCapitalColName}(snowflake.nextId()); 
 </#if>
 <#if !auto && pkColumnType = 'String'>
-        resources.set${pkCapitalColName}(IdUtil.simpleUUID());
+        resources.set${pkCapitalColName}(IdUtil.simpleUUID()); 
 </#if>
 <#if columns??>
     <#list columns as column>

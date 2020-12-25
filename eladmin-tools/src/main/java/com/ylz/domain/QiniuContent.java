@@ -45,6 +45,7 @@ public class QiniuContent implements Serializable {
     @ApiModelProperty(value = "空间名")
     private String bucket;
 
+    @Column(name = "QINIU_SIZE")
     @ApiModelProperty(value = "大小")
     private String size;
 

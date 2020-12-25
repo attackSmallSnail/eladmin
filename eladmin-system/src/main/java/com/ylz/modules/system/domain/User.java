@@ -41,9 +41,9 @@ public class User extends BaseEntity implements Serializable {
     @Id
     @Column(name = "user_id")
     @NotNull(groups = Update.class)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @ApiModelProperty(value = "ID", hidden = true)
-    private Long id;
+    private String id;
 
     @ManyToMany
     @ApiModelProperty(value = "用户角色")

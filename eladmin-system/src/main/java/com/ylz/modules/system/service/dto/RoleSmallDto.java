@@ -25,11 +25,13 @@ import java.io.Serializable;
 @Data
 public class RoleSmallDto implements Serializable {
 
-    private Long id;
+    private String id;
 
     private String name;
 
     private Integer level;
+
+//    private Integer levelName;
 
     private String dataScope;
 }

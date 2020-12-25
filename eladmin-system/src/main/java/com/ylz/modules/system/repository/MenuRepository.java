@@ -28,7 +28,7 @@ import java.util.Set;
  * @author Zheng Jie
  * @date 2018-12-17
  */
-public interface MenuRepository extends JpaRepository<Menu, Long>, JpaSpecificationExecutor<Menu> {
+public interface MenuRepository extends JpaRepository<Menu, String>, JpaSpecificationExecutor<Menu> {
 
     /**
      * 根据菜单标题查询
@@ -49,7 +49,7 @@ public interface MenuRepository extends JpaRepository<Menu, Long>, JpaSpecificat
      * @param pid /
      * @return /
      */
-    List<Menu> findByPid(long pid);
+    List<Menu> findByPid(String pid);
 
     /**
      * 查询顶级菜单
@@ -65,14 +65,14 @@ public interface MenuRepository extends JpaRepository<Menu, Long>, JpaSpecificat
      */
     @Query(value = "SELECT m.* FROM sys_menu m, sys_roles_menus r WHERE " +
             "m.menu_id = r.menu_id AND r.role_id IN ?1 AND type != ?2 order by m.menu_sort asc",nativeQuery = true)
-    LinkedHashSet<Menu> findByRoleIdsAndTypeNot(Set<Long> roleIds, int type);
+    LinkedHashSet<Menu> findByRoleIdsAndTypeNot(Set<String> roleIds, int type);
 
     /**
      * 获取节点数量
      * @param id /
      * @return /
      */
-    int countByPid(Long id);
+    int countByPid(String id);
 
     /**
      * 更新节点数目
@@ -81,5 +81,5 @@ public interface MenuRepository extends JpaRepository<Menu, Long>, JpaSpecificat
      */
     @Modifying
     @Query(value = " update sys_menu set sub_count = ?1 where menu_id = ?2 ",nativeQuery = true)
-    void updateSubCntById(int count, Long menuId);
+    void updateSubCntById(int count, String menuId);
 }

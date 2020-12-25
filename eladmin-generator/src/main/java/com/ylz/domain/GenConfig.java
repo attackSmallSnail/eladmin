@@ -42,8 +42,8 @@ public class GenConfig implements Serializable {
     @Id
     @Column(name = "config_id")
     @ApiModelProperty(value = "ID", hidden = true)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private String id;
 
     @NotBlank
     @ApiModelProperty(value = "表名")

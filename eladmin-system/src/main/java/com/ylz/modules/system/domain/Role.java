@@ -43,9 +43,9 @@ public class Role extends BaseEntity implements Serializable {
     @Id
     @Column(name = "role_id")
     @NotNull(groups = {Update.class})
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @ApiModelProperty(value = "ID", hidden = true)
-    private Long id;
+    private String id;
 
     @JsonIgnore
     @ManyToMany(mappedBy = "roles")
@@ -73,9 +73,13 @@ public class Role extends BaseEntity implements Serializable {
     @ApiModelProperty(value = "数据权限，全部 、 本级 、 自定义")
     private String dataScope = DataScopeEnum.THIS_LEVEL.getValue();
 
-    @Column(name = "level")
+    @Column(name = "level_name")
     @ApiModelProperty(value = "级别，数值越小，级别越大")
     private Integer level = 3;
+
+//    @Column(name = "level_name")
+//    @ApiModelProperty(value = "级别，数值越小，级别越大")
+//    private Integer levelName = 3;
 
     @ApiModelProperty(value = "描述")
     private String description;

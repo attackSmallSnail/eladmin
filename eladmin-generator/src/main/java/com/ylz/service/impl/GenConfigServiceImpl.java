@@ -15,6 +15,8 @@
  */
 package com.ylz.service.impl;
 
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
 import lombok.RequiredArgsConstructor;
 import com.ylz.domain.GenConfig;
 import com.ylz.repository.GenConfigRepository;
@@ -64,6 +66,12 @@ public class GenConfigServiceImpl implements GenConfigService {
                 }
             }
             genConfig.setApiPath(api.toString());
+        }
+        GenConfig config = genConfigRepository.findByTableName(tableName);
+        if (ObjectUtil.isEmpty(config)) {
+            genConfig.setId(IdUtil.fastSimpleUUID());
+        } else {
+            genConfig.setId(config.getId());
         }
         return genConfigRepository.save(genConfig);
     }

@@ -92,7 +92,7 @@ public class DictController {
     @ApiOperation("删除字典")
     @DeleteMapping
     @PreAuthorize("@el.check('dict:del')")
-    public ResponseEntity<Object> delete(@RequestBody Set<Long> ids){
+    public ResponseEntity<Object> delete(@RequestBody Set<String> ids){
         dictService.delete(ids);
         return new ResponseEntity<>(HttpStatus.OK);
     }

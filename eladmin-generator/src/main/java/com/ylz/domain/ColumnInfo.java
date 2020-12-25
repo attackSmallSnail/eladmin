@@ -15,11 +15,13 @@
  */
 package com.ylz.domain;
 
+import cn.hutool.core.util.IdUtil;
+import com.ylz.utils.GenUtil;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import com.ylz.utils.GenUtil;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -38,8 +40,8 @@ public class ColumnInfo implements Serializable {
     @Id
     @Column(name = "column_id")
     @ApiModelProperty(value = "ID", hidden = true)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private String id;
 
     @ApiModelProperty(value = "表名")
     private String tableName;
@@ -93,5 +95,6 @@ public class ColumnInfo implements Serializable {
         this.remark = remark;
         this.listShow = true;
         this.formShow = true;
+        this.id = IdUtil.fastSimpleUUID();
     }
 }

@@ -41,8 +41,8 @@ public class Dept extends BaseEntity implements Serializable {
     @Column(name = "dept_id")
     @NotNull(groups = Update.class)
     @ApiModelProperty(value = "ID", hidden = true)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private String id;
 
     @JsonIgnore
     @ManyToMany(mappedBy = "depts")
@@ -61,7 +61,7 @@ public class Dept extends BaseEntity implements Serializable {
     private Boolean enabled;
 
     @ApiModelProperty(value = "上级部门")
-    private Long pid;
+    private String pid;
 
     @ApiModelProperty(value = "子节点数目", hidden = true)
     private Integer subCount = 0;
